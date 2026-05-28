@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     TWILIO_FROM_NUMBER: str = ''
     FIREBASE_PROJECT_ID: str = ''
     FIREBASE_SERVICE_ACCOUNT_JSON: str = ''
-    FRONTEND_ORIGINS: str = 'http://127.0.0.1:5173'
+    FRONTEND_ORIGINS: str = 'http://127.0.0.1:5173,https://whyvo.app,https://www.whyvo.app,https://whyvo-clean.vercel.app'
     FORCE_HTTPS: bool = False
 
 

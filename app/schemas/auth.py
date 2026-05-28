@@ -17,9 +17,17 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RequestOtpRequest(BaseModel):
+    destination: str
+
+
 class VerifyOtpRequest(BaseModel):
     destination: str
     code: str = Field(min_length=4, max_length=6)
+
+
+class MessageResponse(BaseModel):
+    message: str
 
 
 class TokenResponse(BaseModel):

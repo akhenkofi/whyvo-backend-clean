@@ -64,6 +64,19 @@ def login_user(db: Session, identifier: str, password: str):
     return user, token
 
 
+def request_otp(db: Session, destination: str):
+    destination = str(destination or '').strip()
+    if not destination:
+        raise ValueError('Destination is required')
+    user = db.query(User).filter(or_(User.email == destination, User.phone == destination)).first()
+    if not user:
+        raise ValueError('User not found for verification destination')
+    otp = OTPCode(destination=destination, code=_generate_code(), is_used=False)
+    db.add(otp)
+    db.commit()
+    return otp
+
+
 def verify_otp(db: Session, destination: str, code: str, bypass_code: str):
     otp = db.query(OTPCode).filter(OTPCode.destination == destination, OTPCode.is_used == False).order_by(OTPCode.created_at.desc()).first()
     if code != bypass_code and (not otp or otp.code != code):

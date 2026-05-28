@@ -5,8 +5,8 @@ from app.api.deps import get_current_user
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.auth import AuthResponse, LoginRequest, RegisterRequest, TokenResponse, UserResponse, VerifyOtpRequest
-from app.services.auth_service import login_user, register_user, verify_otp
+from app.schemas.auth import AuthResponse, LoginRequest, MessageResponse, RegisterRequest, RequestOtpRequest, TokenResponse, UserResponse, VerifyOtpRequest
+from app.services.auth_service import login_user, register_user, request_otp, verify_otp
 
 router = APIRouter(prefix='/api/v1/auth', tags=['auth'])
 
@@ -28,6 +28,15 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         return AuthResponse(access_token=token, user=user)
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc))
+
+
+@router.post('/request-otp', response_model=MessageResponse)
+def request_otp_route(payload: RequestOtpRequest, db: Session = Depends(get_db)):
+    try:
+        request_otp(db, payload.destination)
+        return MessageResponse(message='OTP requested')
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 @router.post('/verify-otp', response_model=AuthResponse)
