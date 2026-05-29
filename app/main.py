@@ -1,12 +1,16 @@
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.auth_routes import router as auth_router
 from app.api.user_routes import router as user_router
 from app.api.profile_routes import router as profile_router
 from app.api.contacts_routes import router as contacts_router
 from app.api.chat_routes import router as chat_router
+from app.api.community_routes import router as community_router
 from app.api.updates_routes import router as updates_router
 from app.api.device_routes import router as device_router
 from app.core.config import settings
@@ -33,8 +37,12 @@ app.include_router(user_router)
 app.include_router(profile_router)
 app.include_router(contacts_router)
 app.include_router(chat_router)
+app.include_router(community_router)
 app.include_router(updates_router)
 app.include_router(device_router)
+_static_dir = Path(__file__).resolve().parent / 'static'
+_static_dir.mkdir(parents=True, exist_ok=True)
+app.mount('/static', StaticFiles(directory=_static_dir), name='static')
 
 
 @app.middleware('http')
