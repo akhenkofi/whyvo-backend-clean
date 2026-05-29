@@ -19,12 +19,17 @@ def get_threads(current_user: User = Depends(get_current_user), db: Session = De
 @router.get('/{user_id}/messages', response_model=MessagesResponse)
 def get_messages(user_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     items = list_messages(db, current_user.id, user_id)
-    return MessagesResponse(messages=[MessageResponse(id=item.id, sender_user_id=item.sender_user_id, recipient_user_id=item.recipient_user_id, body=item.body, created_at=item.created_at) for item in items])
+    return MessagesResponse(messages=[MessageResponse(id=item.id, sender_user_id=item.sender_user_id, recipient_user_id=item.recipient_user_id, body=item.body, media_url=item.media_url, media_type=item.media_type, created_at=item.created_at) for item in items])
 
 
 @router.post('/{user_id}/messages', response_model=MessageResponse)
 def post_message(user_id: int, payload: MessageCreateRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if user_id == current_user.id:
         raise HTTPException(status_code=400, detail='Cannot message yourself')
-    message = send_message(db, current_user.id, user_id, payload.body)
-    return MessageResponse(id=message.id, sender_user_id=message.sender_user_id, recipient_user_id=message.recipient_user_id, body=message.body, created_at=message.created_at)
+    body = str(payload.body or '').strip()
+    media_url = str(payload.media_url or '').strip() or None
+    media_type = str(payload.media_type or '').strip() or None
+    if not body and not media_url:
+        raise HTTPException(status_code=400, detail='Message body or media is required')
+    message = send_message(db, current_user.id, user_id, body, media_url=media_url, media_type=media_type)
+    return MessageResponse(id=message.id, sender_user_id=message.sender_user_id, recipient_user_id=message.recipient_user_id, body=message.body, media_url=message.media_url, media_type=message.media_type, created_at=message.created_at)

@@ -127,6 +127,8 @@ def community_message_thread(other_user_id: int, limit: int = 80, current_user: 
         'messages': [{
             'id': row.id,
             'text': row.body,
+            'media_url': row.media_url,
+            'media_type': row.media_type,
             'sender_user_id': row.sender_user_id,
             'recipient_user_id': row.recipient_user_id,
             'created_at': row.created_at,
@@ -138,14 +140,18 @@ def community_message_thread(other_user_id: int, limit: int = 80, current_user: 
 @router.post('/messages/{other_user_id}')
 def community_send_message(other_user_id: int, payload: dict, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     text = str(payload.get('text') or payload.get('body') or '').strip()
-    if not text:
-        raise HTTPException(status_code=400, detail='Message text is required')
+    media_url = str(payload.get('media_url') or '').strip() or None
+    media_type = str(payload.get('media_type') or '').strip() or None
+    if not text and not media_url:
+        raise HTTPException(status_code=400, detail='Message text or media is required')
     if other_user_id == current_user.id:
         raise HTTPException(status_code=400, detail='Cannot message yourself')
-    row = send_message(db, current_user.id, other_user_id, text)
+    row = send_message(db, current_user.id, other_user_id, text, media_url=media_url, media_type=media_type)
     return {
         'id': row.id,
         'text': row.body,
+        'media_url': row.media_url,
+        'media_type': row.media_type,
         'sender_user_id': row.sender_user_id,
         'recipient_user_id': row.recipient_user_id,
         'created_at': row.created_at,

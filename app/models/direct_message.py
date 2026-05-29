@@ -12,4 +12,6 @@ class DirectMessage(Base):
     sender_user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     recipient_user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     body = Column(Text, nullable=False)
+    media_url = Column(Text, nullable=True)
+    media_type = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)

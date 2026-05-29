@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -17,6 +18,15 @@ from app.core.config import settings
 from app.core.database import Base, engine
 
 Base.metadata.create_all(bind=engine)
+with engine.begin() as conn:
+    try:
+        conn.execute(text("ALTER TABLE direct_messages ADD COLUMN media_url TEXT"))
+    except Exception:
+        pass
+    try:
+        conn.execute(text("ALTER TABLE direct_messages ADD COLUMN media_type TEXT"))
+    except Exception:
+        pass
 
 app = FastAPI(title=settings.APP_NAME, version='0.1.0')
 

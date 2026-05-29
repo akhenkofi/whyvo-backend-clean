@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class MessageCreateRequest(BaseModel):
-    body: str = Field(min_length=1, max_length=4000)
+    body: str = Field(default='', max_length=4000)
+    media_url: Optional[str] = None
+    media_type: Optional[str] = None
 
 
 class MessageResponse(BaseModel):
@@ -13,6 +15,8 @@ class MessageResponse(BaseModel):
     sender_user_id: int
     recipient_user_id: int
     body: str
+    media_url: Optional[str] = None
+    media_type: Optional[str] = None
     created_at: datetime
 
 
